@@ -1,26 +1,30 @@
-import React from "react";
-import logo from "./logo.svg";
-import "./App.css";
+import React, { useState } from "react";
+import EventSelector from "./components/EventSelector";
+import OptionEditor from "./components/OptionEditor";
+import TimelineViewer from "./components/TimelineViewer";
 
-function App() {
+const App: React.FC = () => {
+  const [selectedEvent, setSelectedEvent] = useState<string | null>(null);
+  const [timeline, setTimeline] = useState<string[]>([]);
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+    <div>
+      <h1>remAIk: Alternate History Game</h1>
+      {!selectedEvent ? (
+        <EventSelector onSelectEvent={setSelectedEvent} />
+      ) : (
+        <>
+          <OptionEditor
+            event={selectedEvent}
+            onUpdateTimeline={(newEntry) =>
+              setTimeline((prev) => [...prev, newEntry])
+            }
+          />
+          <TimelineViewer timeline={timeline} />
+        </>
+      )}
     </div>
   );
-}
+};
 
 export default App;
