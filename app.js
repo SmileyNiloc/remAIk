@@ -1,21 +1,26 @@
 import express from "express";
 import cors from "cors";
-import dotenv from "dotenv";
-import OpenAI from "openai";
-dotenv.config();
+import { GoogleGenerativeAI } from "@google/genai";
+
+const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
+
 const app = express();
+
 app.use(cors());
 app.use(express.json());
-const openai = new OpenAI({ apiKey: process.env.GEMINI_API_KEY });
-app.post("/api/ask", async (req, res) => {
+
+const gemini = new GoogleGenerativeAI({
+  apiKey: process.env.GEMINI_API_KEY,
+});
+
+app.post("/generate", async (req, res) => {
+  const { prompt } = req.body;
   try {
-    const { prompt } = req.body;
-    const completion = await openai.chat.completions.create({
-      model: "gpt-4o-mini",
-      messages: [{ role: "user", content: prompt }],
-    });
-    res.json({ reply: completion.choices[0].message.content });
-  } catch (err) {
-    console.error(err);
+    const response = await gemini.generateContent({ prompt });
+    res.json({ text: response.candidates[0].content });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
   }
 });
+
+app.listen(3000, () => console.log("Server running on port 3000"));
