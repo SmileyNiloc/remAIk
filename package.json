@@ -11,8 +11,8 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@google/genai": "^1.22.0",
     "cors": "^2.8.5",
-    "express": "^5.1.0",
-    "@google/genai": "^0.1.2"
+    "express": "^5.1.0"
   }
 }
