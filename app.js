@@ -13,6 +13,72 @@ const gemini = new GoogleGenAI({
   apiKey: process.env.GEMINI_API_KEY,
 });
 
+app.get("/test", async (req, res) => {
+  try {
+    const response = await gemini.models.generateContent({
+      model: "gemini-2.5-flash",
+      contents:
+        "List a few popular cookie recipes, and include the amounts of ingredients.",
+      config: {
+        responseMimeType: "application/json",
+        responseSchema: {
+          type: Type.ARRAY,
+          items: {
+            type: Type.OBJECT,
+            properties: {
+              recipeName: { type: Type.STRING },
+              ingredients: {
+                type: Type.ARRAY,
+                items: { type: Type.STRING },
+              },
+            },
+            propertyOrdering: ["recipeName", "ingredients"],
+          },
+        },
+      },
+    });
+
+    // Gemini responses usually have a "candidates" array
+    res.json(response.candidates ? response.candidates[0].content : response);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+app.get("/test2", async (req, res) => {
+  try {
+    const response = await gemini.models.generateContent({
+      model: "gemini-2.5-flash",
+      contents:
+        "List a few popular cookie recipes, and include the amounts of ingredients.",
+      config: {
+        responseMimeType: "application/json",
+        responseSchema: {
+          type: Type.ARRAY,
+          items: {
+            type: Type.OBJECT,
+            properties: {
+              recipeName: { type: Type.STRING },
+              ingredients: {
+                type: Type.ARRAY,
+                items: { type: Type.STRING },
+              },
+            },
+            propertyOrdering: ["recipeName", "ingredients"],
+          },
+        },
+      },
+    });
+
+    // Gemini responses usually have a "candidates" array
+    res.json(response);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
 app.post("/generate-initial", async (req, res) => {
   const { prompt } = req.body;
   try {
