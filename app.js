@@ -79,6 +79,38 @@ app.get("/test2", async (req, res) => {
   }
 });
 
+app.get("/gnerate-initial", async (req, res) => {
+  try {
+    const response = await gemini.models.generateContent({
+      model: "gemini-2.5-flash",
+      contents:
+        "Create Unique Historical events that have a title, date, and description",
+      config: {
+        thinkingConfig: { thinkingBudget: 0 },
+        responseMimeType: "application/json",
+        responseSchema: {
+          type: Type.ARRAY,
+          items: {
+            type: Type.OBJECT,
+            properties: {
+              title: { type: Type.STRING },
+              date: { type: Type.STRING },
+              description: { type: Type.STRING },
+            },
+            propertyOrdering: ["title", "date", "description"],
+          },
+        },
+      },
+    });
+
+    // Gemini responses usually have a "candidates" array
+    res.json(response.candidates ? response.candidates[0].content : response);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
 app.post("/generate-initial", async (req, res) => {
   const { prompt } = req.body;
   try {
@@ -87,30 +119,28 @@ app.post("/generate-initial", async (req, res) => {
       contents:
         "Create 3 Unique Historical events that have a title, date, and description",
       config: {
-        thinkingConfig: {
-          thinkingBudget: 0, //NO THINKING!
-          systemInstruction:
-            "You are a game revolving around letting users create alternate histories",
-          responseMimeType: "application/json",
-          responseSchema: {
-            type: Type.ARRAY,
-            maxItems: 3,
-            minItems: 3,
-            uniqueItems: true,
-            items: {
-              type: Type.OBJECT,
-              properties: {
-                title: {
-                  type: Type.STRING,
-                },
-                date: {
-                  type: Type.STRING,
-                },
-                description: {
-                  type: Type.STRING,
-                },
-                propertyOrdering: ["title", "date", "description"],
+        thinkingConfig: { thinkingBudget: 0 },
+        systemInstruction:
+          "You are a game revolving around letting users create alternate histories",
+        responseMimeType: "application/json",
+        responseSchema: {
+          type: Type.ARRAY,
+          maxItems: 3,
+          minItems: 3,
+          uniqueItems: true,
+          items: {
+            type: Type.OBJECT,
+            properties: {
+              title: {
+                type: Type.STRING,
               },
+              date: {
+                type: Type.STRING,
+              },
+              description: {
+                type: Type.STRING,
+              },
+              propertyOrdering: ["title", "date", "description"],
             },
           },
         },
