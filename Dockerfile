@@ -10,9 +10,6 @@ COPY package*.json ./
 # Install dependencies
 RUN npm install --production
 
-#install nodemon globally
-RUN npm install -g nodemon
-
 # Copy the rest of the application
 COPY . .
 
@@ -20,4 +17,4 @@ COPY . .
 EXPOSE 3000
 
 # Start the app
-CMD ["nodemon", "index.js"]
+CMD ["node", "app.js"]
