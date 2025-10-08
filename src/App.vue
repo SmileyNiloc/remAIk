@@ -15,15 +15,15 @@
     </header>
     <main>
       <AuthPopup ref="popup" />
-      <p v-if="user">{{ user.email }}</p>
-      <!-- <TimeLine /> -->
+      <!-- <p v-if="user">{{ user.email }}</p> -->
+      <TimeLine />
     </main>
   </div>
 </template>
 
 <script setup>
 import AuthPopup from "./components/AuthPopup.vue";
-// import TimeLine from "./components/TimeLine.vue";
+import TimeLine from "./components/TimeLine.vue";
 import { ref, provide } from "vue";
 import { onAuthStateChanged } from "firebase/auth";
 import { log } from "./utils/logger.js";
