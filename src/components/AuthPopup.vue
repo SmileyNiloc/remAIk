@@ -64,8 +64,8 @@ const signUp = () => {
   }
   createUserWithEmailAndPassword(auth, email.value, password.value)
     .then((userCredential) => {
-      const user = userCredential.user;
-      log(user);
+      closePopup();
+      log(userCredential);
     })
     .catch((error) => {
       const errorCode = error.code;
@@ -78,6 +78,7 @@ const signUp = () => {
       serror(errorMessage);
     });
 };
+
 const login = () => {
   if (!email.value || !password.value) {
     alert("Email and password must be provided");
@@ -85,8 +86,8 @@ const login = () => {
   }
   signInWithEmailAndPassword(auth, email.value, password.value)
     .then((userCredential) => {
-      const user = userCredential.user;
-      log(user);
+      closePopup();
+      log(userCredential);
     })
     .catch((error) => {
       const errorCode = error.code;
@@ -99,6 +100,7 @@ const login = () => {
       serror(errorMessage);
     });
 };
+
 defineExpose({ openPopup, closePopup, visible, isSignUp });
 </script>
 <style>
