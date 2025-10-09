@@ -6,6 +6,13 @@ const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
 
 const app = express();
 
+// const allowedOrigin = ["https://"];
+
+// app.use(
+//   cors({
+//     origin: [allowedOrigin],
+//   })
+// );
 app.use(cors());
 app.use(express.json());
 
