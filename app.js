@@ -79,7 +79,7 @@ app.get("/test2", async (req, res) => {
   }
 });
 
-app.get("/gnerate-initial", async (req, res) => {
+app.get("/generate-initial", async (req, res) => {
   try {
     const response = await gemini.models.generateContent({
       model: "gemini-2.5-flash",
@@ -90,6 +90,8 @@ app.get("/gnerate-initial", async (req, res) => {
         responseMimeType: "application/json",
         responseSchema: {
           type: Type.ARRAY,
+          maxItems: 3,
+          minItems: 3,
           items: {
             type: Type.OBJECT,
             properties: {
