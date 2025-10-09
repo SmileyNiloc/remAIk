@@ -104,9 +104,9 @@ app.get("/generate-initial", async (req, res) => {
         },
       },
     });
-
+    const content = response.candidates[0].content;
     // Gemini responses usually have a "candidates" array
-    res.json(response.candidates ? response.candidates[0].content : response);
+    res.json(content);
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: error.message });
