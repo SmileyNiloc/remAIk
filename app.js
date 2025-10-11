@@ -41,7 +41,7 @@ app.post("/extend-timeline", async (req, res) => {
         responseMimeType: "application/json",
         responseSchema: {
           type: Type.ARRAY,
-          maxItems: 4,
+          maxItems: 2,
           minItems: 2,
           items: {
             type: Type.OBJECT,
