@@ -22,6 +22,7 @@ const gemini = new GoogleGenAI({
 
 app.post("/extend-timeline", async (req, res) => {
   try {
+    const events = JSON.stringify(req.body.events);
     let sysInstr = `
       Use the given timeline and extend it by 2 to 4 events.
       You are creating an alternate timeline. Here is the given timeline:
