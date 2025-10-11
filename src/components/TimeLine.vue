@@ -1,19 +1,16 @@
 <script setup>
 import { ref } from "vue";
+import api from "../utils/api.js";
 
 const events = ref([]);
 
-let idCounter = 0;
-
-const generateTimeline = () => {
-  
-  
-    events.value.push({
-    id: idCounter++,
-    title: `Event ${idCounter}`,
-    description: "This is a description for the event.",
-    date: "2024-01-01",
-  });
+const generateTimeline = async () => {
+  try {
+    const res = await api.get("/generate-initial");
+    events.value.push(...res);
+  } catch (error) {
+    console.error("Error generating timeline:", error);
+  }
 };
 </script>
 
