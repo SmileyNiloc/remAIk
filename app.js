@@ -25,6 +25,7 @@ app.post("/extend-timeline", async (req, res) => {
     const events = JSON.stringify(req.body.events, null, 2);
     let sysInstr = `
       Use the given timeline and extend it by 2 to 4 events.
+      DO NOT RETURN any of the old events.
       You are creating an alternate timeline. Here is the given timeline:
 
       ${events}
