@@ -26,7 +26,7 @@ app.post("/extend-timeline", async (req, res) => {
     let sysInstr = `
       Use the given timeline and extend it by 2 to 4 events.
       DO NOT RETURN any of the old events.
-      You are creating an alternate timeline. Here is the given timeline:
+      You are creating an alternate timeline given changes to real historical events that are provided. Here is the given timeline:
 
       ${events}
       `;
@@ -34,7 +34,7 @@ app.post("/extend-timeline", async (req, res) => {
     const response = await gemini.models.generateContent({
       model: "gemini-2.5-flash",
       contents:
-        "Extend given timeline with new Unique made-up/changed Historical events that have a title, date, and description. DO NOT GIVE give me any of the old events",
+        "Extend given timeline with new Unique made-up and/or changed Historical based on the changed historical events given that have a title, date, and description. DO NOT GIVE give me any of the old events",
       config: {
         systemInstruction: sysInstr,
         thinkingConfig: { thinkingBudget: 0 },
