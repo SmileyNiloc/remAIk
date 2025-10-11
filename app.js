@@ -20,66 +20,42 @@ const gemini = new GoogleGenAI({
   apiKey: process.env.GEMINI_API_KEY,
 });
 
-app.get("/test", async (req, res) => {
+app.post("/extend-timeline", async (req, res) => {
   try {
+    let sysInstr = `
+      Use the given timeline and extend it by 2 to 4 events.
+      You are creating an alternate timeline. Here is the given timeline:
+
+      ${JSON.stringify(events, null, 2)}
+      `;
+
     const response = await gemini.models.generateContent({
       model: "gemini-2.5-flash",
       contents:
-        "List a few popular cookie recipes, and include the amounts of ingredients.",
+        "Extend given timeline with Unique made-up/changed Historical events that have a title, date, and description",
       config: {
+        systemInstruction: sysInstr,
+        thinkingConfig: { thinkingBudget: 0 },
         responseMimeType: "application/json",
         responseSchema: {
           type: Type.ARRAY,
+          maxItems: 2,
+          minItems: 4,
           items: {
             type: Type.OBJECT,
             properties: {
-              recipeName: { type: Type.STRING },
-              ingredients: {
-                type: Type.ARRAY,
-                items: { type: Type.STRING },
-              },
+              title: { type: Type.STRING },
+              date: { type: Type.STRING },
+              description: { type: Type.STRING },
             },
-            propertyOrdering: ["recipeName", "ingredients"],
+            propertyOrdering: ["title", "date", "description"],
           },
         },
       },
     });
 
-    // Gemini responses usually have a "candidates" array
-    res.json(response.candidates ? response.candidates[0].content : response);
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ error: error.message });
-  }
-});
-
-app.get("/test2", async (req, res) => {
-  try {
-    const response = await gemini.models.generateContent({
-      model: "gemini-2.5-flash",
-      contents:
-        "List a few popular cookie recipes, and include the amounts of ingredients.",
-      config: {
-        responseMimeType: "application/json",
-        responseSchema: {
-          type: Type.ARRAY,
-          items: {
-            type: Type.OBJECT,
-            properties: {
-              recipeName: { type: Type.STRING },
-              ingredients: {
-                type: Type.ARRAY,
-                items: { type: Type.STRING },
-              },
-            },
-            propertyOrdering: ["recipeName", "ingredients"],
-          },
-        },
-      },
-    });
-
-    // Gemini responses usually have a "candidates" array
-    res.json(response);
+    const content = response.candidates[0].content.parts[0].text;
+    res.json(JSON.parse(content));
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: error.message });
@@ -119,46 +95,5 @@ app.get("/generate-initial", async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 });
-
-// app.post("/generate-initial", async (req, res) => {
-//   const { prompt } = req.body;
-//   try {
-//     const response = await gemini.models.generateContent({
-//       model: "gemini-2.5-flash",
-//       contents:
-//         "Create 3 Unique Historical events that have a title, date, and description",
-//       config: {
-//         thinkingConfig: { thinkingBudget: 0 },
-//         systemInstruction:
-//           "You are a game revolving around letting users create alternate histories",
-//         responseMimeType: "application/json",
-//         responseSchema: {
-//           type: Type.ARRAY,
-//           maxItems: 3,
-//           minItems: 3,
-//           uniqueItems: true,
-//           items: {
-//             type: Type.OBJECT,
-//             properties: {
-//               title: {
-//                 type: Type.STRING,
-//               },
-//               date: {
-//                 type: Type.STRING,
-//               },
-//               description: {
-//                 type: Type.STRING,
-//               },
-//               propertyOrdering: ["title", "date", "description"],
-//             },
-//           },
-//         },
-//       },
-//     });
-//     res.json({ data: response });
-//   } catch (error) {
-//     res.status(500).json({ error: error.message });
-//   }
-// });
 
 app.listen(3000, () => console.log("Server running on port 3000"));
