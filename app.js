@@ -33,7 +33,7 @@ app.post("/extend-timeline", async (req, res) => {
     const response = await gemini.models.generateContent({
       model: "gemini-2.5-flash",
       contents:
-        "Extend given timeline with Unique made-up/changed Historical events that have a title, date, and description",
+        "Extend given timeline with new Unique made-up/changed Historical events that have a title, date, and description. DO NOT GIVE give me any of the old events",
       config: {
         systemInstruction: sysInstr,
         thinkingConfig: { thinkingBudget: 0 },
