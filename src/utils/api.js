@@ -1,17 +1,25 @@
 import axios from "axios";
-import { auth } from "./firebase.js";
+import { getAuth, onAuthstateChanged } from "./firebase.js";
 
 const api = axios.create({
   baseURL: process.env.VUE_APP_API_BASE_URL,
 });
 
-api.interceptors.request.use(async (config) => {
-  const user = auth.currentUser;
+const auth = getAuth();
+
+onAuthstateChanged(auth, (user) => {
   if (user) {
-    const token = await user.getIdToken();
-    config.headers.Authorization = `Bearer ${token}`;
+    api.interceptors.request.use(async (config) => {
+      const user = auth.currentUser;
+      if (user) {
+        const token = await user.getIdToken();
+        config.headers.Authorization = `Bearer ${token}`;
+      }
+      return config;
+    });
+  } else {
+    console.log("No user signed in yet");
   }
-  return config;
 });
 
 export default api;
