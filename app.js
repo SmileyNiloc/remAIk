@@ -26,7 +26,7 @@ app.get("/test", async (req, res) => {
       description: "there was a war in 1812...",
     },
   ];
-  updateDatabase("test", testTimeline, testdata);
+  updateDatabase("/test/", testTimeline, testdata);
 });
 
 const gemini = new GoogleGenAI({
