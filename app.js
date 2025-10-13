@@ -110,7 +110,7 @@ app.get("/generate-initial", verifyFirebaseToken, async (req, res) => {
 
     const content = response.candidates[0].content.parts[0].text;
     // res.json(JSON.parse(content));
-    await updateDatabase(`/test/${uid}`, "Timeline", JSON.parse(content));
+    await replaceDatabase(`/test/${uid}`, "Timeline", JSON.parse(content));
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: error.message });

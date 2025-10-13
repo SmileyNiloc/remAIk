@@ -48,6 +48,12 @@ export async function updateDatabase(path, key, data) {
   });
 }
 
+export async function replaceDatabase(path, key, data) {
+  await db.ref(path).set({
+    [key]: data,
+  });
+}
+
 export async function onceDatabase(path) {
   try {
     const snapshot = await db.ref(path).once("value");
