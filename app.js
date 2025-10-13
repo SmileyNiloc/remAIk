@@ -1,7 +1,7 @@
 import express from "express";
 import cors from "cors";
 import { GoogleGenAI, Type } from "@google/genai";
-import { verifyFirebaseToken, updateDatabase } from "./auth";
+import { verifyFirebaseToken, updateDatabase } from "./auth.js";
 
 const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
 
@@ -26,7 +26,7 @@ app.get("/test", async (req, res) => {
       description: "there was a war in 1812...",
     },
   ];
-  updateDatabase("/test/", testTimeline, testdata);
+  updateDatabase("/test/", "testTimeline3", testdata);
 });
 
 const gemini = new GoogleGenAI({
@@ -95,7 +95,7 @@ app.get("/generate-initial", verifyFirebaseToken, async (req, res) => {
             type: Type.OBJECT,
             properties: {
               title: { type: Type.STRING },
-              date: { type: Type.STRING },
+              date: { type: "date-time" },
               description: { type: Type.STRING },
             },
             propertyOrdering: ["title", "date", "description"],
@@ -105,6 +105,7 @@ app.get("/generate-initial", verifyFirebaseToken, async (req, res) => {
     });
 
     const content = response.candidates[0].content.parts[0].text;
+    updateDatabase(`/test/${uid}`, "Timeline", content);
     res.json(JSON.parse(content));
   } catch (error) {
     console.error(error);

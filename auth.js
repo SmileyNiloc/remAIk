@@ -1,7 +1,21 @@
 import admin from "firebase-admin";
+import fs from "fs";
+import path from "path";
+// Determine the service account to use
+let serviceAccount;
 
-const serviceAccount = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT);
-
+if (process.env.FIREBASE_SERVICE_ACCOUNT) {
+  // Production: parse JSON from environment variable
+  serviceAccount = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT);
+  console.log("test" + serviceAccount);
+} else {
+  // Development: load local JSON file
+  const filePath = path.resolve(
+    "/home/caten/cpeg470/remaik/remaik-987e9-firebase-adminsdk-fbsvc-15b9f8c6b9.json"
+  );
+  serviceAccount = JSON.parse(fs.readFileSync(filePath, "utf-8"));
+  console.log("test2" + serviceAccount);
+}
 admin.initializeApp({
   credential: admin.credential.cert(serviceAccount),
   databaseURL: "https://remaik-987e9-default-rtdb.firebaseio.com",
