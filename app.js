@@ -1,17 +1,11 @@
 import express from "express";
 import cors from "cors";
 import { GoogleGenAI, Type } from "@google/genai";
-import admin from "firebase-admin";
+import { verifyFirebaseToken, updateDatabase } from "./auth";
 
 const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
-const serviceAccount = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT);
 
 const app = express();
-
-admin.initializeApp({
-  credential: admin.credential.cert(serviceAccount),
-  databaseURL: "https://remaik-987e9-default-rtdb.firebaseio.com",
-});
 
 // const allowedOrigin = ["https://"];
 
@@ -25,14 +19,21 @@ app.use(cors());
 app.use(express.json());
 
 app.get("/test", async (req, res) => {
-  // res.json();
+  const testdata = [
+    {
+      title: "war of 1812",
+      date: "1812",
+      description: "there was a war in 1812...",
+    },
+  ];
+  updateDatabase("test", testTimeline, testdata);
 });
 
 const gemini = new GoogleGenAI({
   apiKey: process.env.GEMINI_API_KEY,
 });
 
-app.post("/extend-timeline", async (req, res) => {
+app.post("/extend-timeline", verifyFirebaseToken, async (req, res) => {
   try {
     const events = JSON.stringify(req.body.events, null, 2);
     let sysInstr = `
@@ -76,7 +77,8 @@ app.post("/extend-timeline", async (req, res) => {
   }
 });
 
-app.get("/generate-initial", async (req, res) => {
+app.get("/generate-initial", verifyFirebaseToken, async (req, res) => {
+  const uid = req.user.uid;
   try {
     const response = await gemini.models.generateContent({
       model: "gemini-2.5-flash",
