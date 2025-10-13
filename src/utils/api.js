@@ -1,5 +1,5 @@
 import axios from "axios";
-import { getAuth, onAuthstateChanged } from "./firebase.js";
+import { getAuth, onAuthStateChanged } from "firebase/auth";
 
 const api = axios.create({
   baseURL: process.env.VUE_APP_API_BASE_URL,
@@ -7,7 +7,7 @@ const api = axios.create({
 
 const auth = getAuth();
 
-onAuthstateChanged(auth, (user) => {
+onAuthStateChanged(auth, (user) => {
   if (user) {
     api.interceptors.request.use(async (config) => {
       const user = auth.currentUser;
