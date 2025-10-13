@@ -25,7 +25,7 @@ app.use(cors());
 app.use(express.json());
 
 app.get("/test", async (req, res) => {
-  print(serviceAccount);
+  res.json(serviceAccount);
 });
 
 const gemini = new GoogleGenAI({
