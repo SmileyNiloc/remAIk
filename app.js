@@ -7,13 +7,14 @@ const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
 
 const app = express();
 
-// const allowedOrigin = ["https://"];
+const allowedOrigin = ["https://remaik-987e9.web.app"];
 
-// app.use(
-//   cors({
-//     origin: [allowedOrigin],
-//   })
-// );
+app.use(
+  cors({
+    origin: [allowedOrigin],
+    methods: ["GET", "POST", "OPTIONS"],
+  })
+);
 
 app.use(cors());
 app.use(express.json());
@@ -26,7 +27,7 @@ app.get("/test", async (req, res) => {
       description: "there was a war in 1812...",
     },
   ];
-  updateDatabase("/test/", "testTimeline3", testdata);
+  await updateDatabase("/test/", "testTimeline3", testdata);
 });
 
 const gemini = new GoogleGenAI({
