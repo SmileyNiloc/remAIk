@@ -50,6 +50,13 @@ const extendTimeline = async () => {
     log("Timeline extended with events:", events);
   }
 };
+
+// Auto-resize textarea as user types
+const autoResize = (event) => {
+  const textarea = event.target;
+  textarea.style.height = "auto"; // Reset height
+  textarea.style.height = textarea.scrollHeight + "px"; // Set to scroll height
+};
 </script>
 
 <template>
@@ -60,14 +67,27 @@ const extendTimeline = async () => {
   <div v-if="events.length > 0" class="timeline">
     <div v-for="event in events" :key="event.id" class="event-card">
       <div class="event-header">
-        <input v-model="event.title" class="event-title" placeholder="Title" />
-        <input v-model="event.date" class="event-date" placeholder="Date" />
+        <textarea
+          v-model="event.title"
+          class="event-title"
+          placeholder="Title"
+          rows="1"
+          @input="autoResize"
+        />
+        <textarea
+          v-model="event.date"
+          class="event-date"
+          placeholder="Date"
+          rows="1"
+          @input="autoResize"
+        />
       </div>
       <textarea
         v-model="event.description"
         class="event-description"
         placeholder="Description"
         rows="3"
+        @input="autoResize"
       />
     </div>
     <button @click="extendTimeline">
@@ -105,7 +125,9 @@ const extendTimeline = async () => {
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
   font-family: "Papyrus", "Comic Sans MS", cursive, sans-serif;
   position: relative;
-  overflow: hidden;
+  overflow: visible; /* Changed from hidden to visible */
+  min-height: fit-content; /* Allow card to expand */
+  height: auto; /* Automatic height based on content */
 }
 
 /* Add scroll effect with pseudo-elements */
@@ -183,21 +205,36 @@ textarea::placeholder {
   font-size: 1.1em;
   flex: 1;
   margin-right: 15px;
+  min-height: 40px; /* Minimum height */
+  height: auto; /* Auto height */
+  overflow: hidden; /* Hide scrollbars */
+  resize: none; /* Prevent manual resizing */
+  line-height: 1.4; /* Consistent line height */
 }
 
 /* Event date specific styling */
 .event-date {
-  width: 150px;
+  min-width: 150px; /* Changed from width to min-width */
+  max-width: 200px; /* Maximum width to prevent over-expansion */
   text-align: center;
   font-weight: 600;
   color: #6d4c41;
+  min-height: 40px; /* Minimum height */
+  height: auto; /* Auto height */
+  overflow: hidden; /* Hide scrollbars */
+  resize: none; /* Prevent manual resizing */
+  line-height: 1.4; /* Consistent line height */
 }
 
 /* Event description specific styling */
 .event-description {
   margin-top: 10px;
   min-height: 60px;
-  resize: vertical;
+  resize: vertical; /* Allow manual vertical resizing */
+  overflow-y: auto; /* Show scrollbar if content exceeds max-height */
+  max-height: none; /* No maximum height restriction */
+  height: auto; /* Auto-adjust height */
+  line-height: 1.5; /* Improve readability */
 }
 
 /* Button styling */
