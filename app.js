@@ -1,7 +1,12 @@
 import express from "express";
 import cors from "cors";
 import { GoogleGenAI, Type } from "@google/genai";
-import { verifyFirebaseToken, updateDatabase, onceDatabase } from "./auth.js";
+import {
+  verifyFirebaseToken,
+  updateDatabase,
+  onceDatabase,
+  replaceDatabase,
+} from "./auth.js";
 
 const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
 
