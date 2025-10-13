@@ -61,7 +61,7 @@ app.post("/extend-timeline", verifyFirebaseToken, async (req, res) => {
             type: Type.OBJECT,
             properties: {
               title: { type: Type.STRING },
-              date: { type: Type.STRING },
+              date: { type: Type.STRING, format: "date-time" },
               description: { type: Type.STRING },
             },
             propertyOrdering: ["title", "date", "description"],
@@ -71,7 +71,8 @@ app.post("/extend-timeline", verifyFirebaseToken, async (req, res) => {
     });
 
     const content = response.candidates[0].content.parts[0].text;
-    res.json(JSON.parse(content));
+    // res.json(JSON.parse(content));
+    await updateDatabase(`/test/${uid}`, "Timeline", content);
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: error.message });
@@ -96,7 +97,7 @@ app.get("/generate-initial", verifyFirebaseToken, async (req, res) => {
             type: Type.OBJECT,
             properties: {
               title: { type: Type.STRING },
-              date: { type: "date-time" },
+              date: { type: Type.STRING, format: "date-time" },
               description: { type: Type.STRING },
             },
             propertyOrdering: ["title", "date", "description"],
@@ -106,8 +107,8 @@ app.get("/generate-initial", verifyFirebaseToken, async (req, res) => {
     });
 
     const content = response.candidates[0].content.parts[0].text;
-    updateDatabase(`/test/${uid}`, "Timeline", content);
-    res.json(JSON.parse(content));
+    // res.json(JSON.parse(content));
+    await updateDatabase(`/test/${uid}`, "Timeline", content);
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: error.message });
