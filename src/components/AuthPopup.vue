@@ -70,10 +70,7 @@ const signUp = () => {
     .catch((error) => {
       const errorCode = error.code;
       const errorMessage = error.message;
-      log(errorCode);
-      log(errorMessage);
-      warn(errorCode);
-      warn(errorMessage);
+      alert(errorCode + errorMessage);
       serror(errorCode);
       serror(errorMessage);
     });
