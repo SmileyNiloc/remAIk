@@ -1,10 +1,17 @@
 import express from "express";
 import cors from "cors";
 import { GoogleGenAI, Type } from "@google/genai";
+import admin from "firebase-admin";
 
 const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
+const serviceAccount = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT);
 
 const app = express();
+
+admin.initializeApp({
+  credential: admin.credential.cert(serviceAccount),
+  databaseURL: "https://remaik-987e9-default-rtdb.firebaseio.com",
+});
 
 // const allowedOrigin = ["https://"];
 
@@ -13,8 +20,13 @@ const app = express();
 //     origin: [allowedOrigin],
 //   })
 // );
+
 app.use(cors());
 app.use(express.json());
+
+app.get("/test", async (req, res) => {
+  print(serviceAccount);
+});
 
 const gemini = new GoogleGenAI({
   apiKey: process.env.GEMINI_API_KEY,
