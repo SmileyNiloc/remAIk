@@ -39,6 +39,16 @@ const gemini = new GoogleGenAI({
   apiKey: process.env.GEMINI_API_KEY,
 });
 
+app.get("/add-event", verifyFirebaseToken, async (req, res) => {
+  const uid = req.user.uid;
+  console.log(`Adding new event for user: ${uid}`);
+  await updateDatabase(`/test/${uid}`, "Timeline", {
+    title: "",
+    date: "",
+    description: "",
+  });
+});
+
 app.post("/extend-timeline", verifyFirebaseToken, async (req, res) => {
   const uid = req.user.uid;
   try {
