@@ -49,6 +49,7 @@ export async function updateDatabase(path, key, data) {
 }
 
 export async function replaceDatabase(path, key, data) {
+  console.log(`replacing database at ${path} with ${key}:${data}`);
   await db.ref(path).set({
     [key]: data,
   });

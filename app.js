@@ -88,6 +88,7 @@ app.post("/extend-timeline", verifyFirebaseToken, async (req, res) => {
 
 app.get("/generate-initial", verifyFirebaseToken, async (req, res) => {
   const uid = req.user.uid;
+  console.log(`generating initial: ${uid}`);
   try {
     const response = await gemini.models.generateContent({
       model: "gemini-2.5-flash",
