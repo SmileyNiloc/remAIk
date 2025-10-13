@@ -1,6 +1,7 @@
 import admin from "firebase-admin";
 import fs from "fs";
 import path from "path";
+import { getHeapSnapshot } from "v8";
 // Determine the service account to use
 let serviceAccount;
 
@@ -45,4 +46,18 @@ export async function updateDatabase(path, key, data) {
   await db.ref(path).update({
     [key]: data,
   });
+}
+
+export async function onceDatabase(path) {
+  try {
+    const snapshot = await db.ref(path).once("value");
+    if (snapshot.exists()) {
+      return snapshot.val();
+    } else {
+      return null;
+    }
+  } catch (error) {
+    console.error("Error reading database:", error);
+    throw error;
+  }
 }

@@ -1,7 +1,7 @@
 import express from "express";
 import cors from "cors";
 import { GoogleGenAI, Type } from "@google/genai";
-import { verifyFirebaseToken, updateDatabase } from "./auth.js";
+import { verifyFirebaseToken, updateDatabase, onceDatabase } from "./auth.js";
 
 const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
 
@@ -35,8 +35,10 @@ const gemini = new GoogleGenAI({
 });
 
 app.post("/extend-timeline", verifyFirebaseToken, async (req, res) => {
+  const uid = req.user.uid;
   try {
-    const events = JSON.stringify(req.body.events, null, 2);
+    // const events = JSON.stringify(req.body.events, null, 2);
+    const events = await JSON.stringify(onceDatabase(`/test/${uid}`));
     let sysInstr = `
       Use the given timeline and extend it by 2 to 4 events.
       DO NOT RETURN any of the old events.
@@ -72,7 +74,7 @@ app.post("/extend-timeline", verifyFirebaseToken, async (req, res) => {
 
     const content = response.candidates[0].content.parts[0].text;
     // res.json(JSON.parse(content));
-    await updateDatabase(`/test/${uid}`, "Timeline", content);
+    await updateDatabase(`/test/${uid}`, "Timeline", JSON.parse(content));
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: error.message });
@@ -108,7 +110,7 @@ app.get("/generate-initial", verifyFirebaseToken, async (req, res) => {
 
     const content = response.candidates[0].content.parts[0].text;
     // res.json(JSON.parse(content));
-    await updateDatabase(`/test/${uid}`, "Timeline", content);
+    await updateDatabase(`/test/${uid}`, "Timeline", JSON.parse(content));
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: error.message });
