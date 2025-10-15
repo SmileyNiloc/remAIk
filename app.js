@@ -90,9 +90,9 @@ app.post("/extend-timeline", verifyFirebaseToken, async (req, res) => {
       },
     });
     const content = response.candidates[0].content.parts[0].text;
-    // res.json(JSON.parse(content));
     console.log(`updating database with: ${JSON.parse(content)} `);
     await updateDatabase(`/test/${uid}`, "Timeline", JSON.parse(content));
+    res.sendStatus(200);
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: error.message });
@@ -128,8 +128,8 @@ app.post("/generate-initial", verifyFirebaseToken, async (req, res) => {
     });
 
     const content = response.candidates[0].content.parts[0].text;
-    // res.json(JSON.parse(content));
     await replaceDatabase(`/test/${uid}`, "Timeline", JSON.parse(content));
+    res.sendStatus(200);
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: error.message });
