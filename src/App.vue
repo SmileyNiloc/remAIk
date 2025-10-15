@@ -16,7 +16,7 @@
     <main>
       <AuthPopup ref="popup" />
       <!-- <p v-if="user">{{ user.email }}</p> -->
-      <TimeLine />
+      <TimeLine v-if="user" />
     </main>
   </div>
 </template>
