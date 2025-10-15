@@ -28,6 +28,8 @@ import { ref, provide } from "vue";
 import { onAuthStateChanged } from "firebase/auth";
 import { log } from "./utils/logger.js";
 import { auth } from "./utils/firebase.js";
+import { db } from "./utils/firebase.js";
+import { ref as dbRef } from "firebase/database";
 
 const popup = ref(null);
 const openSignup = () => {
@@ -50,9 +52,12 @@ provide("user", user);
 onAuthStateChanged(auth, (firebaseUser) => {
   if (firebaseUser) {
     user.value = firebaseUser;
+    // Get the database reference and create an editable list (will have to handle this with authentication later)
+    user.value.dbRef = dbRef(db, `test/${user.value.uid}/Timeline`);
     log("User logged in:", user.value.email);
   } else {
     user.value = null;
+    user.value.dbRef = null;
     log("User logged out");
   }
 });

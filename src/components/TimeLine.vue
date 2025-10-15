@@ -3,9 +3,7 @@ import { reactive } from "vue";
 import api from "../utils/api.js";
 import { log, serror } from "@/utils/logger.js";
 import { EditableDatabaseList } from "../utils/editableDatabase.js";
-import { ref as dbRef } from "firebase/database";
-import { db } from "../utils/firebase.js";
-
+import { inject } from "vue";
 // Event Factory Function (used to create new events locally), makes sure they are formatted correctly
 function createEvent(firebaseData) {
   let dataobj = new Date(firebaseData.date);
@@ -19,9 +17,10 @@ function createEvent(firebaseData) {
     description: firebaseData.description || "",
   });
 }
+const user = inject("user");
+
 // Get the database reference and create an editable list (will have to handle this with authentication later)
-const eventsRef = dbRef(db, "test/testTimeline2/");
-const eventsDb = new EditableDatabaseList(eventsRef, createEvent, 500);
+const eventsDb = new EditableDatabaseList(user.value.dbRef, createEvent, 500);
 const events = eventsDb.items;
 
 // Add new Event
@@ -33,15 +32,10 @@ const addEvent = async () => {
   });
 };
 
-// Update event (debounced automatically if you modify events array)
-// const updateEvent = async (eventId, updates) => {
-//   await eventsDb.updateItem(eventId, updates);
-// };
-
 // Delete event
-// const deleteEvent = async (eventId) => {
-//   await eventsDb.removeItem(eventId);
-// };
+const deleteEvent = async (eventId) => {
+  await eventsDb.removeItem(eventId);
+};
 
 const generateTimeline = async () => {
   try {
@@ -61,12 +55,7 @@ const generateTimeline = async () => {
 const extendTimeline = async () => {
   try {
     log("Extending using url:", api.defaults.baseURL + "/extend-timeline");
-    const currentEvents = events.map((e) => ({
-      title: e.title,
-      date: e.date,
-      description: e.description,
-    }));
-    const res = await api.post("/extend-timeline", { events: currentEvents });
+    const res = await api.post("/extend-timeline");
     for (const data of res.data) {
       events.push(createEvent(data.title, data.date, data.description));
     }
@@ -117,19 +106,11 @@ const autoResize = (event) => {
         rows="3"
         @input="autoResize"
       />
-      <!--  
-          @blur="updateEvent(event.id, { title: event.title })"
-
-      @blur="updateEvent(event.id, { date: event.date })"
-      
-        @blur="updateEvent(event.id, { description: event.description })"
-      
-      -->
+      <button @click="deleteEvent(event.id)">Delete Event</button>
     </div>
     <button @click="extendTimeline">
       Submit changes and extend the timeline!
     </button>
-    <p>{{ events }}</p>
   </div>
   <br />
   <button @click="events.push(addEvent('', '', ''))">Add new Event</button>
