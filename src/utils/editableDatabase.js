@@ -136,8 +136,16 @@ export class EditableDatabaseList {
   async _saveToFirebase(itemId, data) {
     this.isSaving.value = true;
     try {
+      // Convert any Date objects to ISO strings for Firebase compatibility
+      const sanitizedData = { ...data };
+      for (const key in sanitizedData) {
+        if (sanitizedData[key] instanceof Date) {
+          sanitizedData[key] = sanitizedData[key].toISOString();
+        }
+      }
+
       const itemRef = child(this.databaseRef, itemId);
-      await update(itemRef, data);
+      await update(itemRef, sanitizedData);
       console.log(`Auto-saved item ${itemId} to Firebase`);
     } catch (error) {
       console.error("Auto-save failed:", error);
@@ -218,10 +226,18 @@ export class EditableDatabaseList {
     // Set saving flag to prevent sync conflicts
     this.isSaving.value = true;
     try {
+      // Convert any Date objects to ISO strings for Firebase compatibility
+      const sanitizedData = { ...data };
+      for (const key in sanitizedData) {
+        if (sanitizedData[key] instanceof Date) {
+          sanitizedData[key] = sanitizedData[key].toISOString();
+        }
+      }
+
       // Create a reference to the specific item
       const itemRef = child(this.databaseRef, itemId);
       // Update the item in Firebase (partial update)
-      await update(itemRef, data);
+      await update(itemRef, sanitizedData);
     } catch (error) {
       console.error("Update item failed:", error);
       // Re-throw to allow caller to handle the error

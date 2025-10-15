@@ -1,9 +1,12 @@
 <script setup>
-import { reactive } from "vue";
+import { reactive, ref } from "vue";
 import api from "../utils/api.js";
 import { log, serror } from "@/utils/logger.js";
 import { EditableDatabaseList } from "../utils/editableDatabase.js";
 import { inject } from "vue";
+
+// Loading state
+const isLoading = ref(false);
 // Event Factory Function (used to create new events locally), makes sure they are formatted correctly
 function createEvent(firebaseData) {
   let dataobj = new Date(firebaseData.date);
@@ -25,19 +28,32 @@ const events = eventsDb.items;
 
 // Add new Event
 const addEvent = async () => {
-  await eventsDb.addItem({
-    title: "",
-    date: "",
-    description: "",
-  });
+  try {
+    await eventsDb.addItem({
+      title: "",
+      date: new Date().toISOString(), // Use current date instead of empty string
+      description: "",
+    });
+  } catch (error) {
+    serror("Failed to add event:", error);
+  }
 };
 
 // Delete event
 const deleteEvent = async (eventId) => {
-  await eventsDb.removeItem(eventId);
+  if (!eventId) {
+    serror("Cannot delete event: Invalid event ID");
+    return;
+  }
+  try {
+    await eventsDb.removeItem(eventId);
+  } catch (error) {
+    serror("Failed to delete event:", error);
+  }
 };
 
 const generateTimeline = async () => {
+  isLoading.value = true;
   try {
     log("Generating using url:", api.defaults.baseURL + "/generate-initial");
     const res = await api.post("/generate-initial");
@@ -48,11 +64,13 @@ const generateTimeline = async () => {
   } catch (error) {
     serror("Error generating timeline:", error);
   } finally {
+    isLoading.value = false;
     // events.sort((a, b) => a.date - b.date);
     log("Timeline generated with events:", events);
   }
 };
 const extendTimeline = async () => {
+  isLoading.value = true;
   try {
     log("Extending using url:", api.defaults.baseURL + "/extend-timeline");
     const res = await api.post("/extend-timeline");
@@ -63,6 +81,7 @@ const extendTimeline = async () => {
   } catch (error) {
     serror("Error extending timeline:", error);
   } finally {
+    isLoading.value = false;
     // events.sort((a, b) => a.date - b.date);
     log("Timeline extended with events:", events);
   }
@@ -77,6 +96,14 @@ const autoResize = (event) => {
 </script>
 
 <template>
+  <!-- Loading Overlay -->
+  <div v-if="isLoading" class="loading-overlay">
+    <div class="loading-spinner">
+      <div class="spinner"></div>
+      <p>Generating your timeline...</p>
+    </div>
+  </div>
+
   <button v-if="events.length == 0" @click="generateTimeline">
     Generate an initial timeline!
   </button>
@@ -108,19 +135,13 @@ const autoResize = (event) => {
       />
       <button @click="deleteEvent(event.id)">Delete Event</button>
     </div>
-    <button @click="extendTimeline">
+    <button @click="extendTimeline()">
       Submit changes and extend the timeline!
     </button>
   </div>
   <br />
-  <button @click="events.push(addEvent('', '', ''))">Add new Event</button>
-  <button
-    v-if="events.length > 0"
-    @click="
-      events.length = 0;
-      generateTimeline;
-    "
-  >
+  <button @click="addEvent()">Add new Event</button>
+  <button v-if="events.length > 0" @click="generateTimeline()">
     Generate a new timeline!
   </button>
 </template>
@@ -312,5 +333,64 @@ button:active {
 button:focus {
   outline: 3px solid rgba(212, 175, 55, 0.5);
   outline-offset: 2px;
+}
+
+/* Loading Overlay */
+.loading-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.7);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;
+  backdrop-filter: blur(5px);
+}
+
+.loading-spinner {
+  text-align: center;
+  color: #ffd700;
+  font-family: "Papyrus", "Comic Sans MS", cursive, sans-serif;
+}
+
+.loading-spinner p {
+  margin-top: 20px;
+  font-size: 1.5rem;
+  font-weight: bold;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
+  animation: pulse 2s ease-in-out infinite;
+}
+
+/* Spinner Animation */
+.spinner {
+  width: 80px;
+  height: 80px;
+  margin: 0 auto;
+  border: 8px solid rgba(255, 215, 0, 0.2);
+  border-top: 8px solid #ffd700;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes pulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.6;
+  }
 }
 </style>
