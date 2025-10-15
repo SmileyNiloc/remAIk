@@ -53,7 +53,7 @@ app.post("/extend-timeline", verifyFirebaseToken, async (req, res) => {
   const uid = req.user.uid;
   try {
     // const events = JSON.stringify(req.body.events, null, 2);
-    const events = await JSON.stringify(onceDatabase(`/test/${uid}`));
+    const events = await JSON.stringify(onceDatabase(`/test/${uid}/Timeline`));
     let sysInstr = `
       Use the given timeline and extend it by 2 to 4 events.
       DO NOT RETURN any of the old events.
