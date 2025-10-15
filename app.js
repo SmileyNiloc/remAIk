@@ -99,7 +99,7 @@ app.post("/extend-timeline", verifyFirebaseToken, async (req, res) => {
   }
 });
 
-app.get("/generate-initial", verifyFirebaseToken, async (req, res) => {
+app.post("/generate-initial", verifyFirebaseToken, async (req, res) => {
   const uid = req.user.uid;
   console.log(`generating initial: ${uid}`);
   try {
@@ -136,4 +136,4 @@ app.get("/generate-initial", verifyFirebaseToken, async (req, res) => {
   }
 });
 
-app.listen(port, () => console.log("Server running on port 3000"));
+app.listen(port, () => console.log(`Server running on port:${port}`));
