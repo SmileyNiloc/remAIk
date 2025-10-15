@@ -1,0 +1,16 @@
+Issue with adding empty event, something about the description (in addEvent in timeline.vue)
+also with the async addItem in EditableDatabase
+TimeLine.vue:31 Uncaught (in promise) TypeError: i.insert is not a function
+
+unable to delete events
+as best as I can tell, neither are actually creating 
+editableDatabase.js:194 Remove item failed: Error: child failed: path argument was an invalid path = "undefined". Paths must be non-empty strings and can't contain ".", "#", "$", "[", or "]"
+    at x.removeItem (editableDatabase.js:190:23)
+    at u (TimeLine.vue:37:18)
+    at onClick (TimeLine.vue:109:23)
+
+runtime-core.esm-bundler.js:275 Error: child failed: path argument was an invalid path = "undefined". Paths must be non-empty strings and can't contain ".", "#", "$", "[", or "]"
+    at x.removeItem (editableDatabase.js:190:23)
+    at u (TimeLine.vue:37:18)
+    at onClick (TimeLine.vue:109:23)
+

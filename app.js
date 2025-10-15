@@ -8,6 +8,8 @@ import {
   replaceDatabase,
 } from "./auth.js";
 
+const port = process.env.PORT || 4000;
+
 const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
 
 const app = express();
@@ -53,6 +55,7 @@ app.post("/extend-timeline", verifyFirebaseToken, async (req, res) => {
   const uid = req.user.uid;
   try {
     // const events = JSON.stringify(req.body.events, null, 2);
+    console.log("Getting timeline stored at /test/${uid}/Timeline");
     const events = await JSON.stringify(onceDatabase(`/test/${uid}/Timeline`));
     let sysInstr = `
       Use the given timeline and extend it by 2 to 4 events.
@@ -86,9 +89,9 @@ app.post("/extend-timeline", verifyFirebaseToken, async (req, res) => {
         },
       },
     });
-
     const content = response.candidates[0].content.parts[0].text;
     // res.json(JSON.parse(content));
+    console.log(`updating database with: ${JSON.parse(content)} `);
     await updateDatabase(`/test/${uid}`, "Timeline", JSON.parse(content));
   } catch (error) {
     console.error(error);
@@ -133,4 +136,4 @@ app.get("/generate-initial", verifyFirebaseToken, async (req, res) => {
   }
 });
 
-app.listen(3000, () => console.log("Server running on port 3000"));
+app.listen(port, () => console.log("Server running on port 3000"));

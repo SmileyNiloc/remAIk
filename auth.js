@@ -25,6 +25,9 @@ admin.initializeApp({
 const db = admin.database();
 
 export async function verifyFirebaseToken(req, res, next) {
+  console.log(`Recieved request to verify firebase.
+    req: ${req}
+    res: ${res}`);
   const authHeader = req.headers.authorization || "";
   const token = authHeader.startsWith("Bearer ")
     ? authHeader.split(" ")[1]
