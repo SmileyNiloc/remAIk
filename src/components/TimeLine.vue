@@ -40,7 +40,7 @@ const deleteEvent = async (eventId) => {
 const generateTimeline = async () => {
   try {
     log("Generating using url:", api.defaults.baseURL + "/generate-initial");
-    const res = await api.get("/generate-initial");
+    const res = await api.post("/generate-initial");
     // for (const data of res.data) {
     //   events.push(createEvent(data.title, data.date, data.description));
     // }
