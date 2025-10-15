@@ -9,14 +9,10 @@ import { inject } from "vue";
 const isLoading = ref(false);
 // Event Factory Function (used to create new events locally), makes sure they are formatted correctly
 function createEvent(firebaseData) {
-  let dataobj = new Date(firebaseData.date);
-  if (isNaN(dataobj)) {
-    dataobj = firebaseData.date; // Keep original if invalid date
-  }
   return reactive({
     id: firebaseData.id, // Vuefire adds automatically?
     title: firebaseData.title || "",
-    date: dataobj || "",
+    date: firebaseData.date || "",
     description: firebaseData.description || "",
   });
 }
@@ -31,7 +27,7 @@ const addEvent = async () => {
   try {
     await eventsDb.addItem({
       title: "",
-      date: new Date().toISOString(), // Use current date instead of empty string
+      date: "", // empty string
       description: "",
     });
   } catch (error) {
