@@ -2,31 +2,59 @@
 import { reactive } from "vue";
 import api from "../utils/api.js";
 import { log, serror } from "@/utils/logger.js";
+import { EditableDatabaseList } from "../utils/editableDatabase.js";
+import { ref as dbRef } from "firebase/database";
+import { db } from "../utils/firebase.js";
 
-const events = reactive([]);
-
-function createEvent(title, date, description) {
-  let dateobj = new Date(date);
-  if (isNaN(dateobj)) dateobj = date;
+// Event Factory Function (used to create new events locally), makes sure they are formatted correctly
+function createEvent(firebaseData) {
+  let dataobj = new Date(firebaseData.date);
+  if (isNaN(dataobj)) {
+    dataobj = firebaseData.date; // Keep original if invalid date
+  }
   return reactive({
-    title: title,
-    date: dateobj,
-    description: description,
+    id: firebaseData.id, // Vuefire adds automatically?
+    title: firebaseData.title || "",
+    date: dataobj || "",
+    description: firebaseData.description || "",
   });
 }
+// Get the database reference and create an editable list (will have to handle this with authentication later)
+const eventsRef = dbRef(db, "test/testTimeline2/");
+const eventsDb = new EditableDatabaseList(eventsRef, createEvent, 500);
+const events = eventsDb.items;
+
+// Add new Event
+const addEvent = async () => {
+  await eventsDb.addItem({
+    title: "",
+    date: "",
+    description: "",
+  });
+};
+
+// Update event (debounced automatically if you modify events array)
+// const updateEvent = async (eventId, updates) => {
+//   await eventsDb.updateItem(eventId, updates);
+// };
+
+// Delete event
+// const deleteEvent = async (eventId) => {
+//   await eventsDb.removeItem(eventId);
+// };
 
 const generateTimeline = async () => {
   try {
     log("Generating using url:", api.defaults.baseURL + "/generate-initial");
     const res = await api.get("/generate-initial");
-    for (const data of res.data) {
-      events.push(createEvent(data.title, data.date, data.description));
-    }
+    // for (const data of res.data) {
+    //   events.push(createEvent(data.title, data.date, data.description));
+    // }
     log("Timeline generation response:", res.data);
   } catch (error) {
     serror("Error generating timeline:", error);
   } finally {
-    events.sort((a, b) => a.date - b.date);
+    // events.sort((a, b) => a.date - b.date);
     log("Timeline generated with events:", events);
   }
 };
@@ -89,13 +117,22 @@ const autoResize = (event) => {
         rows="3"
         @input="autoResize"
       />
+      <!--  
+          @blur="updateEvent(event.id, { title: event.title })"
+
+      @blur="updateEvent(event.id, { date: event.date })"
+      
+        @blur="updateEvent(event.id, { description: event.description })"
+      
+      -->
     </div>
     <button @click="extendTimeline">
       Submit changes and extend the timeline!
     </button>
+    <p>{{ events }}</p>
   </div>
   <br />
-  <button @click="events.push(createEvent('', '', ''))">Add new Event</button>
+  <button @click="events.push(addEvent('', '', ''))">Add new Event</button>
   <button
     v-if="events.length > 0"
     @click="
