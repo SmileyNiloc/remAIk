@@ -56,14 +56,14 @@ const extendTimeline = async () => {
   try {
     log("Extending using url:", api.defaults.baseURL + "/extend-timeline");
     const res = await api.post("/extend-timeline");
-    for (const data of res.data) {
-      events.push(createEvent(data.title, data.date, data.description));
-    }
+    // for (const data of res.data) {
+    //   events.push(createEvent(data.title, data.date, data.description));
+    // }
     log("Timeline extension response:", res.data);
   } catch (error) {
     serror("Error extending timeline:", error);
   } finally {
-    events.sort((a, b) => a.date - b.date);
+    // events.sort((a, b) => a.date - b.date);
     log("Timeline extended with events:", events);
   }
 };
