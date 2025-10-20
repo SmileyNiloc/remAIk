@@ -60,7 +60,8 @@ export async function replaceDatabase(path, key, data) {
 
 export async function addToDatabase(path, key, data) {
   console.log(`adding to database at ${path} with ${key}:${data}`);
-  let snapshot = await onceDatabase(path);
+  let snapshot = await onceDatabase(path + "/Timeline");
+
   data.forEach((event) => {
     snapshot.get("Timeline", []).push(event);
   });
@@ -74,6 +75,7 @@ export async function onceDatabase(path) {
   try {
     const snapshot = await db.ref(path).once("value");
     if (snapshot.exists()) {
+      console.log(`Database path: ${path} returned ${snapshot.val()}`);
       return snapshot.val();
     } else {
       return null;
