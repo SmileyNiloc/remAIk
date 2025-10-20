@@ -62,11 +62,11 @@ export async function addToDatabase(path, key, data) {
   console.log(`adding to database at ${path} with ${key}:${data}`);
   let snapshot = await onceDatabase(path);
   data.forEach((event) => {
-    snapshot.push(event);
+    snapshot.get("Timeline", []).push(event);
   });
   // data = JSON.parse(JSON.stringify(snapshot) + JSON.stringify(data));
   await db.ref(path).set({
-    [key]: snapshot,
+    [key]: snapshot.get("Timeline", "No timeline field"),
   });
 }
 
