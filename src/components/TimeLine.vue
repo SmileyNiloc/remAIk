@@ -25,7 +25,7 @@ const events = eventsDb.items;
 // Add new Event
 const addEvent = async () => {
   try {
-    await eventsDb.addItem({
+    await eventsDb.items.push({
       title: "",
       date: "", // empty string
       description: "",
@@ -36,17 +36,17 @@ const addEvent = async () => {
 };
 
 // Delete event
-const deleteEvent = async (eventId) => {
-  if (!eventId) {
-    serror("Cannot delete event: Invalid event ID");
-    return;
-  }
-  try {
-    await eventsDb.removeItem(eventId);
-  } catch (error) {
-    serror("Failed to delete event:", error);
-  }
-};
+// const deleteEvent = async (eventId) => {
+//   if (!eventId) {
+//     serror("Cannot delete event: Invalid event ID");
+//     return;
+//   }
+//   try {
+//     await eventsDb.removeItem(eventId);
+//   } catch (error) {
+//     serror("Failed to delete event:", error);
+//   }
+// };
 
 const generateTimeline = async () => {
   isLoading.value = true;
@@ -82,7 +82,12 @@ const extendTimeline = async () => {
     log("Timeline extended with events:", events);
   }
 };
-
+const formatDate = (dateString) => {
+  const date = new Date(dateString);
+  if (isNaN(date)) return dateString; // return original if invalid
+  const options = { year: "numeric", month: "long", day: "numeric" };
+  return date.toLocaleDateString(undefined, options);
+};
 // Auto-resize textarea as user types
 const autoResize = (event) => {
   const textarea = event.target;
@@ -115,7 +120,7 @@ const autoResize = (event) => {
           @input="autoResize"
         />
         <textarea
-          v-model="event.date"
+          :value="formatDate(event.date)"
           class="event-date"
           placeholder="Date"
           rows="1"
@@ -129,7 +134,7 @@ const autoResize = (event) => {
         rows="3"
         @input="autoResize"
       />
-      <button @click="deleteEvent(event.id)">Delete Event</button>
+      <!-- <button @click="deleteEvent(event.id)">Delete Event</button> -->
     </div>
     <button @click="extendTimeline()">
       Submit changes and extend the timeline!

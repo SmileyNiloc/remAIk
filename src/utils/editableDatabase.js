@@ -196,4 +196,7 @@ export class EditableDatabaseList {
       log(`[EditableDatabaseList] Save completed, isSaving set to false`);
     }
   }
+  // async removeItem(eventId) {
+
+  // }
 }
