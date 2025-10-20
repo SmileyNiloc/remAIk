@@ -66,7 +66,7 @@ app.post("/extend-timeline", verifyFirebaseToken, async (req, res) => {
       DO NOT RETURN any of the old events.
       You are creating an alternate timeline given changes to real historical events that are provided. Here is the given timeline:
 
-      ${events}
+      
       `;
 
     const response = await gemini.models.generateContent({
@@ -97,10 +97,10 @@ app.post("/extend-timeline", verifyFirebaseToken, async (req, res) => {
     console.log(
       `updating database with: ${JSON.stringify(JSON.parse(content))} `
     );
-    console.log(
-      `Test taking index 0: ${content[0]}
-      , and index 1: ${JSON.parse(content[1])}`
-    );
+    // console.log(
+    //   `Test taking index 0: ${content[0]}
+    //   , and index 1: ${JSON.parse(content[1])}`
+    // );
     await replaceDatabase(`/test/${uid}/`, "Timeline", JSON.parse(content));
     res.sendStatus(200);
   } catch (error) {
