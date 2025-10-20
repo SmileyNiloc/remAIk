@@ -1,7 +1,8 @@
 import { useDatabaseList } from "vuefire";
-import { update, push, remove, child } from "firebase/database";
+import { set } from "firebase/database";
 import { reactive, ref, watch } from "vue";
 import { debounce } from "lodash";
+import { log } from "./logger";
 
 /**
  * EditableDatabaseList - A reactive wrapper for Firebase Realtime Database lists
@@ -29,11 +30,29 @@ export class EditableDatabaseList {
    * @param {number} debounceMs - Milliseconds to debounce updates (default: 500ms)
    */
   constructor(databaseRef, itemFactory = null, debounceMs = 500) {
+    log("[EditableDatabaseList] Constructor called", {
+      databaseRef: databaseRef?.toString(),
+      hasItemFactory: !!itemFactory,
+      debounceMs,
+    });
+
     // Store the Firebase database reference
     this.databaseRef = databaseRef;
 
     // Set up VueFire's reactive database list binding
     this.firebaseData = useDatabaseList(databaseRef);
+
+    watch(
+      this.firebaseData,
+      (val) => {
+        if (val && val.length) {
+          log("[EditableDatabaseList] Initial Firebase data:", val);
+        } else {
+          log("[EditableDatabaseList] No initial Firebase data");
+        }
+      },
+      { immediate: true, once: true } // 👈 runs immediately and only once
+    );
 
     // Create a reactive array to hold our local data items
     this.items = reactive([]);
@@ -73,14 +92,21 @@ export class EditableDatabaseList {
     watch(
       this.firebaseData,
       (newItems) => {
+        log("[EditableDatabaseList] Firebase data changed", {
+          newItemsCount: newItems?.length || 0,
+          isSaving: this.isSaving.value,
+        });
+
         // Only sync from Firebase to local if we're not currently saving
         // This prevents our local changes from being overwritten
         if (newItems && !this.isSaving.value) {
+          log("[EditableDatabaseList] Syncing Firebase data to local items");
           // Clear the current items array
           this.items.splice(0, this.items.length);
-
+          // this.items.length = 0;
           // Populate with new items from Firebase
-          newItems.forEach((item) => {
+          newItems.forEach((item, index) => {
+            log(`[EditableDatabaseList] Processing item ${index}:`, item.id);
             if (this.itemFactory) {
               // Use custom factory function if provided
               this.items.push(this.itemFactory(item));
@@ -90,8 +116,14 @@ export class EditableDatabaseList {
             }
           });
 
+          log(
+            `[EditableDatabaseList] Synced ${this.items.length} items to local array`
+          );
+
           // Set up watchers for each item to auto-sync local changes
           this._setupItemWatchers();
+        } else if (this.isSaving.value) {
+          log("[EditableDatabaseList] Skipping sync - currently saving");
         }
       },
       { immediate: true, deep: true } // Run immediately and watch nested properties
@@ -107,18 +139,31 @@ export class EditableDatabaseList {
    * @private
    */
   _setupItemWatchers() {
+    log(
+      `[EditableDatabaseList] Setting up watchers for ${this.items.length} items`
+    );
     this.items.forEach((item) => {
       // Watch each item deeply for any changes
+      log(`Watching item:`, item);
       watch(
         () => item,
         (newValue) => {
+          log(`[EditableDatabaseList] Item ${item.id} changed`, {
+            isSaving: this.isSaving.value,
+            hasId: !!item.id,
+          });
           // Only trigger save if we're not currently syncing from Firebase
           if (!this.isSaving.value && item.id) {
-            // Extract the Firebase ID and clean data for saving
-            const { id, ...data } = newValue;
-
-            // Call debounced save function
-            this._debouncedSave(id, data);
+            log("Changed Value:", newValue);
+            log("Updating database with data: ", this.items);
+            // Call debounced save function, overwriting full database
+            this._debouncedSave(this.items);
+          } else {
+            log(
+              `[EditableDatabaseList] Skipping save for item ${
+                item.id
+              } (isSaving: ${this.isSaving.value}, hasId: ${!!item.id})`
+            );
           }
         },
         { deep: true } // Watch all nested properties
@@ -129,106 +174,26 @@ export class EditableDatabaseList {
   /**
    * Internal method to save data to Firebase (called by debounced function)
    *
-   * @param {string} itemId - The ID of the item to save
    * @param {Object} data - The data to save
    * @private
    */
-  async _saveToFirebase(itemId, data) {
+  async _saveToFirebase(data) {
+    log(`[EditableDatabaseList] Starting save to Firebase`, {
+      data,
+    });
     this.isSaving.value = true;
     try {
-      const itemRef = child(this.databaseRef, itemId);
-      await update(itemRef, data);
-      console.log(`Auto-saved item ${itemId} to Firebase`);
+      //Update the entire database
+      await set(this.databaseRef, data);
+      log(`[EditableDatabaseList] ✅ Auto-saved Firebase successfully`);
     } catch (error) {
-      console.error("Auto-save failed:", error);
+      console.error(
+        `[EditableDatabaseList] ❌ Auto-save failed for database: `,
+        error
+      );
     } finally {
       this.isSaving.value = false;
-    }
-  }
-
-  /**
-   * Adds a new item to the Firebase database
-   *
-   * @param {Object} data - The data object to add to the database
-   * @returns {Promise<void>}
-   * @throws {Error} If the database operation fails
-   *
-   * @example
-   * await todoList.addItem({ title: 'Buy groceries', completed: false });
-   */
-  async addItem(data) {
-    // Set saving flag to prevent sync conflicts
-    this.isSaving.value = true;
-    try {
-      // Push the new item to Firebase
-      await push(this.databaseRef, data);
-    } catch (error) {
-      console.error("Add item failed:", error);
-      // Re-throw to allow caller to handle the error
-      throw error;
-    } finally {
-      // Always clear the saving flag
-      this.isSaving.value = false;
-    }
-  }
-
-  /**
-   * Removes an item from the Firebase database
-   *
-   * @param {string} itemId - The unique ID of the item to remove
-   * @returns {Promise<void>}
-   * @throws {Error} If the database operation fails
-   *
-   * @example
-   * await todoList.removeItem('item-123');
-   */
-  async removeItem(itemId) {
-    // Set saving flag to prevent sync conflicts
-    this.isSaving.value = true;
-    try {
-      // Create a reference to the specific item
-      const itemRef = child(this.databaseRef, itemId);
-      // Remove the item from Firebase
-      await remove(itemRef);
-    } catch (error) {
-      console.error("Remove item failed:", error);
-      // Re-throw to allow caller to handle the error
-      throw error;
-    } finally {
-      // Always clear the saving flag
-      this.isSaving.value = false;
-    }
-  }
-
-  /**
-   * Updates an existing item in the Firebase database
-   *
-   * This method performs a partial update - only the properties in the
-   * data object will be updated, other properties remain unchanged.
-   *
-   * @param {string} itemId - The unique ID of the item to update
-   * @param {Object} data - The properties to update (partial update)
-   * @returns {Promise<void>}
-   * @throws {Error} If the database operation fails
-   *
-   * @example
-   * await todoList.updateItem('item-123', { completed: true });
-   */
-  async updateItem(itemId, data) {
-    // Set saving flag to prevent sync conflicts
-    this.isSaving.value = true;
-    try {
-      // Create a reference to the specific item
-      const itemRef = child(this.databaseRef, itemId);
-      // Update the item in Firebase (partial update)
-      await update(itemRef, data);
-    } catch (error) {
-      console.error("Update item failed:", error);
-      // Re-throw to allow caller to handle the error
-      throw error;
-    } finally {
-      // Always clear the saving flag
-      this.isSaving.value = false;
+      log(`[EditableDatabaseList] Save completed, isSaving set to false`);
     }
   }
 }

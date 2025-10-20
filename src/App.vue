@@ -53,8 +53,12 @@ onAuthStateChanged(auth, (firebaseUser) => {
   if (firebaseUser) {
     user.value = firebaseUser;
     // Get the database reference and create an editable list (will have to handle this with authentication later)
+    user.value.dbRefPath = `test/${user.value.uid}/Timeline`;
     user.value.dbRef = dbRef(db, `test/${user.value.uid}/Timeline`);
+
     log("User logged in:", user.value.email);
+    log("DB Ref Path:", user.value.dbRefPath);
+    log("DB Ref:", user.value.dbRef);
   } else {
     user.value = null;
     user.value.dbRef = null;
