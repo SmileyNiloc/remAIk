@@ -91,8 +91,10 @@ app.post("/extend-timeline", verifyFirebaseToken, async (req, res) => {
       },
     });
     const content = response.candidates[0].content.parts[0].text;
-    console.log(`updating database with: ${JSON.parse(content)} `);
-    await addToDatabase(`/test/${uid}`, "Timeline", JSON.parse(content));
+    console.log(
+      `updating database with: ${JSON.stringify(JSON.parse(content))} `
+    );
+    await addToDatabase(`/test/${uid}/Timeline`, JSON.parse(content));
     res.sendStatus(200);
   } catch (error) {
     console.error(error);
