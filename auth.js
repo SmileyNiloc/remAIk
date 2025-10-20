@@ -58,17 +58,15 @@ export async function replaceDatabase(path, key, data) {
   });
 }
 
-export async function addToDatabase(path, key, data) {
-  console.log(`adding to database at ${path} with ${key}:${data}`);
-  let snapshot = await onceDatabase(path + "/Timeline");
+export async function addToDatabase(path, data) {
+  console.log(`adding to database at ${path} with ${data}`);
+  // let snapshot = await onceDatabase(path + "/Timeline");
 
-  data.forEach((event) => {
-    snapshot.get("Timeline", []).push(event);
-  });
+  // data.forEach((event) => {
+  //   snapshot.get("Timeline", []).push(event);
+  // });
   // data = JSON.parse(JSON.stringify(snapshot) + JSON.stringify(data));
-  await db.ref(path).set({
-    [key]: snapshot.get("Timeline", "No timeline field"),
-  });
+  await db.ref(path).push(data);
 }
 
 export async function onceDatabase(path) {
