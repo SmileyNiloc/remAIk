@@ -97,6 +97,10 @@ app.post("/extend-timeline", verifyFirebaseToken, async (req, res) => {
     console.log(
       `updating database with: ${JSON.stringify(JSON.parse(content))} `
     );
+    console.log(
+      `Test taking index 0: ${content[0]}
+      , and index 1: ${JSON.parse(content[1])}`
+    );
     await replaceDatabase(`/test/${uid}/`, "Timeline", JSON.parse(content));
     res.sendStatus(200);
   } catch (error) {
