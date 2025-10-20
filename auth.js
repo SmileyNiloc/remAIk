@@ -73,7 +73,9 @@ export async function onceDatabase(path) {
   try {
     const snapshot = await db.ref(path).once("value");
     if (snapshot.exists()) {
-      console.log(`Database path: ${path} returned ${snapshot.val()}`);
+      console.log(
+        `Database path: ${path} returned ${JSON.stringify(snapshot.val())}`
+      );
       return snapshot.val();
     } else {
       return null;
