@@ -60,10 +60,13 @@ export async function replaceDatabase(path, key, data) {
 
 export async function addToDatabase(path, key, data) {
   console.log(`adding to database at ${path} with ${key}:${data}`);
-  const snapshot = await onceDatabase(path);
-  data = JSON.stringify(snapshot) + JSON.stringify(data);
+  let snapshot = await onceDatabase(path);
+  data.forEach((event) => {
+    snapshot.push(event);
+  });
+  // data = JSON.parse(JSON.stringify(snapshot) + JSON.stringify(data));
   await db.ref(path).set({
-    [key]: data,
+    [key]: snapshot,
   });
 }
 
