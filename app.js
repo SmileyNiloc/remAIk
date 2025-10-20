@@ -58,6 +58,7 @@ app.post("/extend-timeline", verifyFirebaseToken, async (req, res) => {
     // const events = JSON.stringify(req.body.events, null, 2);
     console.log("Getting timeline stored at /test/${uid}/Timeline");
     const events = await JSON.stringify(onceDatabase(`/test/${uid}/Timeline`));
+    console.log(`Previous Events found: ${events}`);
     let sysInstr = `
       Use the given timeline and extend it by 2 to 4 events.
       DO NOT RETURN any of the old events.
@@ -94,7 +95,7 @@ app.post("/extend-timeline", verifyFirebaseToken, async (req, res) => {
     console.log(
       `updating database with: ${JSON.stringify(JSON.parse(content))} `
     );
-    await addToDatabase(`/test/${uid}/Timeline`, JSON.parse(content));
+    await replaceDatabase(`/test/${uid}/`, "Timeline", JSON.parse(content));
     res.sendStatus(200);
   } catch (error) {
     console.error(error);
