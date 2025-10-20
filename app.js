@@ -105,11 +105,8 @@ app.post("/extend-timeline", verifyFirebaseToken, async (req, res) => {
     const combined_events = [...old_events, ...new_events].sort(
       (a, b) => new Date(a.date) - new Date(b.date)
     );
-    await replaceDatabase(
-      `/test/${uid}/`,
-      "Timeline",
-      JSON.parse(combined_events)
-    );
+    console.log("updating database with:", JSON.stringify(combined_events));
+    await replaceDatabase(`/test/${uid}/`, "Timeline", combined_events);
     res.sendStatus(200);
   } catch (error) {
     console.error(error);
