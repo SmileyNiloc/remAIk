@@ -208,6 +208,7 @@ const autoResize = (event) => {
 input,
 textarea {
   background: rgba(255, 248, 220, 0.6);
+  height: auto;
   border: none;
   border-radius: 6px;
   padding: 10px 14px;
