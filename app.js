@@ -134,7 +134,7 @@ app.post("/generate-initial", verifyFirebaseToken, async (req, res) => {
   try {
     const response = await gemini.models.generateContent({
       model: "gemini-2.5-flash",
-      contents: `Create Unique Historical events that have a title, date, and description. It has to revolve around/include this random date:${randDate}`,
+      contents: `Create Unique Historical events that have a title, date, and description. And one event must use this random date:${randDate}. no events can be the wame year.`,
       config: {
         thinkingConfig: { thinkingBudget: 0 },
         responseMimeType: "application/json",
