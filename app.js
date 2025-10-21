@@ -77,8 +77,8 @@ app.post("/extend-timeline", verifyFirebaseToken, async (req, res) => {
         systemInstruction: sysInstr,
         thinkingConfig: { thinkingBudget: 0 },
         responseMimeType: "application/json",
-        temperature: 1.9,
-        topP: 1.0,
+        temperature: 1.8,
+        topP: 0.99,
         topK: 64,
         responseSchema: {
           type: Type.ARRAY,
@@ -128,8 +128,8 @@ app.post("/generate-initial", verifyFirebaseToken, async (req, res) => {
       config: {
         thinkingConfig: { thinkingBudget: 0 },
         responseMimeType: "application/json",
-        temperature: 2.0,
-        topP: 1.0,
+        temperature: 1.8,
+        topP: 0.98,
         topK: 64,
         responseSchema: {
           type: Type.ARRAY,
