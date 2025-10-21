@@ -77,7 +77,7 @@ app.post("/extend-timeline", verifyFirebaseToken, async (req, res) => {
         systemInstruction: sysInstr,
         thinkingConfig: { thinkingBudget: 0 },
         responseMimeType: "application/json",
-        temperature: 1.9,
+        temperature: 1.8,
         topP: 0.99,
         topK: 64,
         responseSchema: {
