@@ -117,14 +117,24 @@ app.post("/extend-timeline", verifyFirebaseToken, async (req, res) => {
   }
 });
 
+function randomDate(start, end) {
+  return new Date(
+    start.getTime() + Math.random() * (end.getTime() - start.getTime())
+  );
+}
+
+const date = randomDate(new Date(100, 0, 1), new Date(2020, 11, 31));
+
 app.post("/generate-initial", verifyFirebaseToken, async (req, res) => {
   const uid = req.user.uid;
   console.log(`generating initial: ${uid}`);
+  const randDate = randomDate(new Date(100, 0, 1), new Date(2020, 11, 31));
+
+  console.log(`random date: ${randDate}`);
   try {
     const response = await gemini.models.generateContent({
       model: "gemini-2.5-flash",
-      contents:
-        "Create Unique Historical events that have a title, date, and description",
+      contents: `Create Unique Historical events that have a title, date, and description. It has to revolve around/include this random date:${randDate}`,
       config: {
         thinkingConfig: { thinkingBudget: 0 },
         responseMimeType: "application/json",
