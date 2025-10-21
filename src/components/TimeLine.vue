@@ -23,17 +23,18 @@ const eventsDb = new EditableDatabaseList(user.value.dbRef, createEvent, 500);
 const events = eventsDb.items;
 
 // Add new Event
-const addEvent = async () => {
-  try {
-    await eventsDb.items.push({
-      title: "",
-      date: "", // empty string
-      description: "",
-    });
-  } catch (error) {
-    serror("Failed to add event:", error);
-  }
-};
+// const addEvent = async () => {
+//   try {
+//     await eventsDb.items.push({
+//       title: "",
+//       date: "", // empty string
+//       description: "",
+//     });
+//     eventsDb._setupSync();
+//   } catch (error) {
+//     serror("Failed to add event:", error);
+//   }
+// };
 
 // Delete event
 // const deleteEvent = async (eventId) => {
@@ -141,7 +142,7 @@ const autoResize = (event) => {
     </button>
   </div>
   <br />
-  <button @click="addEvent()">Add new Event</button>
+  <!-- <button @click="addEvent()">Add new Event</button> -->
   <button v-if="events.length > 0" @click="generateTimeline()">
     Generate a new timeline!
   </button>

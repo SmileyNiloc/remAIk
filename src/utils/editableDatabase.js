@@ -85,7 +85,7 @@ export class EditableDatabaseList {
    *
    * Also sets up watchers on local items to auto-save changes to Firebase with debouncing.
    *
-   * @private
+   * @public
    */
   _setupSync() {
     // Watch Firebase data and sync to local items
@@ -170,7 +170,9 @@ export class EditableDatabaseList {
       );
     });
   }
+  // addItem(item) {
 
+  // }
   /**
    * Internal method to save data to Firebase (called by debounced function)
    *
